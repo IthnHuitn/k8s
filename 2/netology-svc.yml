@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: netology-svc
+spec:
+  selector:
+    app: netology-web  # Этот селектор должен соответствовать меткам Pod
+  ports:
+  - protocol: TCP
+    port: 80           # Порт, на котором будет доступен Service
+    targetPort: 8080   # Порт контейнера в Pod
+  type: ClusterIP      # Тип Service (по умолчанию)
