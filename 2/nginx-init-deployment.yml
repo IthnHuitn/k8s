@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-init
+  labels:
+    app: nginx-init
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-init
+  template:
+    metadata:
+      labels:
+        app: nginx-init
+    spec:
+      initContainers:
+      - name: check-service
+        image: docker.io/library/busybox:1.37.0
+        command: ['sh', '-c', 'echo "Проверяем наличие сервиса..."; until nslookup nginx-init-svc.default.svc.cluster.local 2>&1 | grep -A1 "Name:" | grep -q "Address: 10\."; do echo "Сервис не найден, ждем..."; sleep 3; done; echo "Сервис найден! Запускаем nginx..."; sleep 2']
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+          name: http
