@@ -1,0 +1,92 @@
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: sc-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /mnt/sc-data
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - evilmc  # ваша нода
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sc-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 500Mi
+  storageClassName: local-storage
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-exchange-sc
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-exchange-sc
+  template:
+    metadata:
+      labels:
+        app: data-exchange-sc
+    spec:
+      containers:
+      - name: busybox
+        image: busybox:latest
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          while true; do
+            echo "$(date) - Data from busybox SC" >> /data/shared.txt
+            sleep 5
+          done
+        volumeMounts:
+        - name: persistent-storage
+          mountPath: /data
+      - name: multitool
+        image: wbitt/network-multitool:latest
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          tail -f /data/shared.txt
+        volumeMounts:
+        - name: persistent-storage
+          mountPath: /data
+        env:
+        - name: HTTP_PORT
+          value: "8080"
+      volumes:
+      - name: persistent-storage
+        persistentVolumeClaim:
+          claimName: sc-pvc
