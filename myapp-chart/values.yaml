@@ -1,0 +1,47 @@
+# values.yaml - ТОЛЬКО данные, БЕЗ шаблонов!
+global:
+  environment: ""
+
+frontend:
+  name: frontend
+  kind: Deployment
+  image:
+    repository: nginx
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  replicaCount: 2
+  containerPort: 80
+  servicePort: 80
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+backend:
+  name: backend
+  kind: Deployment
+  image:
+    repository: redis
+    tag: "alpine"
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  containerPort: 6379
+  servicePort: 6379
+  #storageSize: "2Gi"
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  # Убираем hosts из values.yaml - они будут в шаблоне
