@@ -24,5 +24,5 @@ kubectl get networkpolicies -n app
 
 ### Проверка работоспособности политик
 ![networking1-2](https://github.com/IthnHuitn/k8s/blob/net_policy/scr/net_policy1-2.png)
-![networking2-1](https://github.com/IthnHuitn/k8s/blob/net_policy/scr/net_policy1-1.png)
-![networking2-2](https://github.com/IthnHuitn/k8s/blob/net_policy/scr/net_policy1-2.png)
+![networking2-1](https://github.com/IthnHuitn/k8s/blob/net_policy/scr/net_policy1-3.png)
+![networking2-2](https://github.com/IthnHuitn/k8s/blob/net_policy/scr/net_policy1-4.png)
